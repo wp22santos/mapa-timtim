@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mapa — Casas para alugar (TimTim Patos de Minas)</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <style>
+    body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    #map { height: 100vh; }
+    .popup h3 { margin: 0 0 6px 0; font-size: 16px; }
+    .popup .meta { color: #666; font-size: 12px; margin-bottom: 8px; }
+    .popup .desc { white-space: pre-wrap; font-size: 13px; }
+    .popup img { width: 100%; max-width: 320px; border-radius: 8px; margin: 8px 0; display:block; }
+    .pill { display:inline-block; padding:2px 8px; border-radius: 999px; background:#eee; font-size: 12px; }
+  </style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+  // Observações importantes:
+  // - Muitos anúncios do TimTim não têm foto anexada. Nesses casos mostramos "Sem foto no anúncio".
+  // - Alguns anúncios não têm endereço completo; o pino fica aproximado (bairro/rua) até você informar o número.
+
+  const listings = [
+    {
+      title: "Casa — Av. Carlos Nogueira Júnior (Copacabana)",
+      lat: -18.5834168,
+      lon: -46.5334135,
+      address: "Avenida Carlos Nogueira Junior 52, bairro Copacabana, Patos de Minas",
+      desc: "Aluga-se uma casa na avenida Carlos Nogueira Junior 52, bairro Copacabana, Patos de Minas, sendo 3 quartos ,uma suíte, sala, copa, cozinha e banheiro, garagem para 2 carros e cômodo pequeno no fundo. Tr.: (34) 99812-0831.",
+      photo: null,
+    },
+    {
+      title: "Casa — Rua Sacramento (Centro)",
+      lat: -18.5824348,
+      lon: -46.5128540,
+      address: "Rua Sacramento, Centro, Patos de Minas (sem número no anúncio)",
+      desc: "Aluga-se casa no Centro, rua Sacramento, locação residencial ou comercial, imóvel todo reformado, com 4 quartos (uma suíte) 3 salas, cozinha planejada, 2 banheiros, garagem, área de lavanderia, painel solar. Valor do aluguel R$3.300,00 com R$500,00 de crédito de energia elétrica. Tr.: (34) 99100-3757 (Allan Moreira).",
+      photo: null,
+    },
+    {
+      title: "Casa — Sebastião Amorim (bairro)",
+      lat: -18.5957999,
+      lon: -46.4977501,
+      address: "Bairro Sebastião Amorim, Patos de Minas (sem rua/número no anúncio)",
+      desc: "Aluga-se casa, bairro Sebastião Amorim, 5 cômodos, 2 banheiros, área ampla na frente, garagem para motos, R$750,00. Tr.: (34) 99182-2696.",
+      photo: null,
+    },
+    {
+      title: "Casa pequena no Centro (aproximado)",
+      lat: -18.5789,
+      lon: -46.5183,
+      address: "Centro, Patos de Minas (sem rua/número no anúncio)",
+      desc: "Aluga-se casa pequena no Centro. Tr.: 99966-0098.",
+      photo: null,
+    },
+  ];
+
+  const map = L.map('map').setView([-18.583, -46.515], 13);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap'
+  }).addTo(map);
+
+  function popupHtml(x) {
+    const gmaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(x.address)}`;
+    const photoHtml = x.photo
+      ? `<img src="${x.photo}" alt="Foto" />`
+      : `<div class="pill">Sem foto no anúncio</div>`;
+
+    return `
+      <div class="popup">
+        <h3>${x.title}</h3>
+        <div class="meta">${x.address} &middot; <a href="${gmaps}" target="_blank" rel="noreferrer">abrir no Google Maps</a></div>
+        ${photoHtml}
+        <div class="desc">${x.desc}</div>
+      </div>
+    `;
+  }
+
+  const bounds = [];
+  for (const x of listings) {
+    const m = L.marker([x.lat, x.lon]).addTo(map);
+    m.bindPopup(popupHtml(x), { maxWidth: 380 });
+    bounds.push([x.lat, x.lon]);
+  }
+  if (bounds.length) map.fitBounds(bounds, { padding: [30, 30] });
+</script>
+</body>
+</html>
